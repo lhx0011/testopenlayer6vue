@@ -317,6 +317,7 @@ export default {
       }
     },
 
+    /* 展示表格 */
     get_contaion(data){
       var html = "<table>";
       html += "<tr>";
