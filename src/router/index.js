@@ -4,7 +4,8 @@ import HelloWorld from '@/components/HelloWorld'
 import Test from '@/components/home/test'
 import GisMap from '@/components/map/map1'
 import OlMap from '@/components/map/olmap'
-import Tree from '@/components/map/tree'
+// import Tree from '@/components/map/tree'
+import HysxMap from '@/components/map/map'
 
 Vue.use(Router)
 
@@ -26,15 +27,20 @@ export default new Router({
       component: GisMap
     },
     {
+      path: '/map',
+      name: 'map',
+      component: HysxMap
+    },
+    {
       path: '/olmap',
       name: 'OlMap',
       component: GisMap
     },
-    {
-      path: '/tree',
-      name: 'Tree',
-      component: GisMap
-    },
+    // {
+    //   path: '/tree',
+    //   name: 'Tree',
+    //   component: GisMap
+    // },
 
   ]
 })
