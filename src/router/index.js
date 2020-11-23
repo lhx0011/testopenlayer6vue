@@ -6,6 +6,7 @@ import GisMap from '@/components/map/map1'
 import OlMap from '@/components/map/olmap'
 // import Tree from '@/components/map/tree'
 import HysxMap from '@/components/map/map'
+// import Map3 from '@/components/map/map3'
 
 Vue.use(Router)
 
@@ -41,6 +42,11 @@ export default new Router({
     //   name: 'Tree',
     //   component: GisMap
     // },
+    {
+      path: '/map3',
+      name: 'map3',
+      component: GisMap
+    },
 
   ]
 })

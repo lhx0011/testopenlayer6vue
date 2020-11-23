@@ -4,6 +4,13 @@
   </div>
 </template>
 
+<script src="https://unpkg.com/elm-pep"></script>
+<!--<script type="text/javascript" src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>-->
+<!--<script src="/static/js/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,URL"></script>-->
+<!--<script src="https://api.mapbox.com/mapbox.js/plugins/arc.js/v0.1.0/arc.js"></script>-->
+
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">-->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>-->
 <script>
 import 'ol/ol.css';
 import Feature from 'ol/Feature';
@@ -19,28 +26,67 @@ import {Circle as CircleStyle, Text, Fill, Stroke, Style} from 'ol/style';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import {getVectorContext} from 'ol/render';
 import { transform, fromLonLat } from "ol/proj";
+// 方法1
+// import arc from "./arc.js";
+// import "./jquery-3.5.1.min.js";
+// import "./bootstrap.bundle.min.js";
+// import "./polyfill.min.js";
+
+
 
 export default {
   name: "map",
   data() {
     return {
-      map: null
+      tileLayer: null,
+      map: null,
+      pointSource: null,
+      pointLayer: null,
+      styleCache: null,
+      flightsSource: null,
+      flightsLayer: null,
+      style: null,
+      infoList : {},
     }
   },
   mounted() {
+    // 方法2
+    this.loadJQJsFile()
+    this.loadArcJsFile()
+    this.loadBootstrapJsFile()
     this.initMap();
   },
   methods: {
+
+    loadArcJsFile() {
+      let loadScript = document.createElement('script')
+      loadScript.setAttribute('src', 'https://api.mapbox.com/mapbox.js/plugins/arc.js/v0.1.0/arc.js')
+      document.head.appendChild(loadScript)
+
+    },
+
+    loadBootstrapJsFile() {
+      let loadScript = document.createElement('script')
+      loadScript.setAttribute('src', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js')
+      document.head.appendChild(loadScript)
+    },
+    loadJQJsFile() {
+      let loadScript = document.createElement('script')
+      loadScript.setAttribute('src', 'http://libs.baidu.com/jquery/2.1.4/jquery.min.js')
+      document.head.appendChild(loadScript)
+    },
     initMap() {
-      var tileLayer = new TileLayer({
+      //我不知道你是怎么定义私有变量的？
+      let that = this;
+      this.tileLayer = new TileLayer({
         // source: new Stamen({
         //   layer: 'toner',
         // })
         source: new OSM()
       });
 
-      var map = new Map({
-        layers: [tileLayer],
+      this.map = new Map({
+        layers: [that.tileLayer],
         target: 'map',
         view: new View({
           // center: [0, 0],
@@ -49,7 +95,7 @@ export default {
         }),
       });
 
-      var style = new Style({
+      that.style = new Style({
         stroke: new Stroke({
           color: '#35cf06',
           width: 2,
@@ -71,18 +117,20 @@ export default {
 
       const features = [];
 
-      var url = 'http://localhost:9000/ocean/gis/getData/5f4b450fbbf722103d5bab1d';
+      var url = 'http://localhost:9000/ocean/gis/getData/5fbb4dc46af9a9128c2ee084';
 
-      const infoList = {};
+      // const infoList = {};
 
-      var pointSource = new VectorSource({
+      this.pointSource = new VectorSource({
         loader: function () {
           // var url = url;
           fetch(url)
             .then(function (response) {
+              console.log(response)
               return response.json();
             })
             .then(function (json) {
+              console.log(json)
               var flightsData = json.body.datas;
               for (var i = 0; i < flightsData.length; i++) {
                 // console.log(flightsData[i].recv)
@@ -91,7 +139,7 @@ export default {
                 var info = flightsData[i].info;
                 // console.log(info)
                 var id = i+1;
-                infoList.id = info;
+                that.infoList.id = info;
 
                 var recv = flightsData[i].recv.lonlat;
                 var send = flightsData[i].send.lonlat;
@@ -124,8 +172,10 @@ export default {
                 var tt = new Feature(featureRecvData);
 
                 // pointSource.addFeature(new Feature(pf));
-                pointSource.addFeature(ff);
-                pointSource.addFeature(tt);
+                // pointSource.addFeature(ff);
+                // pointSource.addFeature(tt);
+                that.pointSource.addFeature(ff);
+                that.pointSource.addFeature(tt);
 
               }
             });
@@ -134,8 +184,8 @@ export default {
       });
 
       const styleCache = {};
-      var pointLayer = new VectorLayer({
-        source: pointSource,
+      this.pointLayer = new VectorLayer({
+        source: this.pointSource,
         style: function (feature) {
           const size = 6;
           let style = styleCache[size];
@@ -158,7 +208,7 @@ export default {
         },
       })
 
-      var flightsSource = new VectorSource({
+      this.flightsSource = new VectorSource({
         wrapX: false,
         // attributions:
         //   'Flight data by ' +
@@ -170,7 +220,7 @@ export default {
               return response.json();
             })
             .then(function (json) {
-              // console.log(json)
+              console.log(json)
               var flightsData = json.body.datas;
               // console.log(flightsData.length)
               for (var i = 0; i < flightsData.length; i++) {
@@ -204,43 +254,46 @@ export default {
                   });
                   // add the feature with a delay so that the animation
                   // for all features does not start at the same time
-                  addLater(feature, i * 50);
+                  that.addLater(feature, i * 50);
                 }
               }
-              tileLayer.on('postrender', this.animateFlights);
+              that.tileLayer.on('postrender', that.animateFlights);
             });
         },
       });
 
-      var flightsLayer = new VectorLayer({
-        source: flightsSource,
+      this.flightsLayer = new VectorLayer({
+        source: this.flightsSource,
         style: function (feature) {
+          // var that = this;
           // console.log("-----1")
           // if the animation is still active for a feature, do not
           // render the feature with the layer style
           if (feature.get('finished')) {
-            return style;
+            return that.style;
           } else {
             return null;
           }
         },
       });
 
-      // map.addLayer(flightsLayer);
-      // map.addLayer(pointLayer);
-      map.on('click', function (evt) {
-        this.displayFeatureInfo(evt.pixel);
+      this.map.addLayer(this.flightsLayer);
+      this.map.addLayer(this.pointLayer);
+
+      this.map.on('click', function (evt) {
+        that.displayFeatureInfo(evt.pixel);
       });
     },
 
     animateFlights(event) {
+      let that = this;
       var pointsPerMs = 0.05;
       var vectorContext = getVectorContext(event);
       var frameState = event.frameState;
-      vectorContext.setStyle(style);
+      vectorContext.setStyle(that.style);
 
-      var features = flightsSource.getFeatures();
-      // console.log("length: " + features.length)
+      var features = this.flightsSource.getFeatures();
+      // console.loGg("length: " + features.length)
       for (var i = 0; i < features.length; i++) {
         var feature = features[i];
 
@@ -268,17 +321,18 @@ export default {
         }
       }
       // tell OpenLayers to continue the animation
-      map.render();
+      this.map.render();
     },
 
     addLater(feature, timeout) {
-      window.setTimeout(function () {
+      setTimeout( () => {
         feature.set('start', new Date().getTime());
-        flightsSource.addFeature(feature);
+        this.flightsSource.addFeature(feature);
       }, timeout);
     },
 
     displayFeatureInfo(pixel) {
+      var that = this;
       var info = $('#info');
       info.tooltip({
         animation: false,
@@ -296,7 +350,7 @@ export default {
       console.log("-------info");
       console.log(info);
 
-      var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+      var feature = this.map.forEachFeatureAtPixel(pixel, function (feature) {
         return feature;
       });
       console.log("--------feature");
@@ -307,7 +361,7 @@ export default {
         info.attr('data-original-title', feature.get('depth')).tooltip('show');
         var id = feature.get("id");
         // console.log(infoList.id);
-        var html = get_contaion(infoList.id);
+        var html = this.get_contaion(that.infoList.id);
         // console.log(feature.id_);
         // console.log(html);
         $("#geoinfo").html(html);
