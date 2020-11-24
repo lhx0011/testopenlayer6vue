@@ -1,27 +1,24 @@
 <template>
-  <div id="map" class="map">
-    <div id="info"></div>
+  <div>
+    <div id="map" class="map">
+      <div id="info"></div>
+    </div>
+    <div id="geoinfo"></div>
   </div>
+
 </template>
 
-<script src="https://unpkg.com/elm-pep"></script>
-<!--<script type="text/javascript" src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>-->
-<!--<script src="/static/js/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,URL"></script>-->
-<!--<script src="https://api.mapbox.com/mapbox.js/plugins/arc.js/v0.1.0/arc.js"></script>-->
 
-<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">-->
-<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>-->
+<script src="https://unpkg.com/elm-pep"></script>
 <script>
 import 'ol/ol.css';
 import Feature from 'ol/Feature';
 import LineString from 'ol/geom/LineString';
 import Map from 'ol/Map';
-import Stamen from 'ol/source/Stamen';
 import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
 import View from 'ol/View';
 import Point from 'ol/geom/Point';
-// import {Stroke, Style} from 'ol/style';
 import {Circle as CircleStyle, Text, Fill, Stroke, Style} from 'ol/style';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import {getVectorContext} from 'ol/render';
@@ -31,8 +28,6 @@ import { transform, fromLonLat } from "ol/proj";
 // import "./jquery-3.5.1.min.js";
 // import "./bootstrap.bundle.min.js";
 // import "./polyfill.min.js";
-
-
 
 export default {
   name: "map",
@@ -47,6 +42,7 @@ export default {
       flightsLayer: null,
       style: null,
       infoList : {},
+      uuid: '',
     }
   },
   mounted() {
@@ -59,9 +55,19 @@ export default {
   methods: {
 
     loadArcJsFile() {
+      var that = this;
+      let url = this.$route.query
+      console.log(url);
+      that.uuid = url.uuid;
+
+
       let loadScript = document.createElement('script')
       loadScript.setAttribute('src', 'https://api.mapbox.com/mapbox.js/plugins/arc.js/v0.1.0/arc.js')
       document.head.appendChild(loadScript)
+
+      let link = document.createElement('link')
+      link.setAttribute('href', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css')
+      document.head.appendChild(link)
 
     },
 
@@ -117,7 +123,8 @@ export default {
 
       const features = [];
 
-      var url = 'http://localhost:9000/ocean/gis/getData/5fbb4dc46af9a9128c2ee084';
+      // var url = 'http://localhost:9000/ocean/gis/getData/5fbb4dc46af9a9128c2ee084';
+      var url = 'http://localhost:9000/ocean/gis/getData/'+ that.uuid;
 
       // const infoList = {};
 
@@ -400,7 +407,10 @@ export default {
 }
 </script>
 
-<style scoped>
+<!--<style src="../static/css/bootstrap.min.css"></style>-->
+<style >
+  /*@import "static/css/bootstrap.min.css";*/
+  /*@import "./style/bootstrap.min.css";*/
   .map {
     width: 100%;
     height:400px;

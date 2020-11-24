@@ -35,6 +35,7 @@ export default {
 </script>
 
 <style>
+  @import "../static/css/bootstrap.min.css";
   #app{
     width: 100%;
     height: 100%;
