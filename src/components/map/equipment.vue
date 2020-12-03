@@ -43,6 +43,8 @@ export default {
       style: null,
       infoList : {},
       uuid: '',
+      respData:null,
+      reqUrl:'',
     }
   },
   mounted() {
@@ -59,6 +61,10 @@ export default {
       let url = this.$route.query
       console.log(url);
       that.uuid = url.uuid;
+      // that.reqUrl = 'http://localhost:9000/ocean/gis/getSurveyTrack/'+ that.uuid;
+      // console.log(that.reqUrl)
+
+      // that.loadData(that.reqUrl)
 
 
       let loadScript = document.createElement('script')
@@ -82,7 +88,7 @@ export default {
       document.head.appendChild(loadScript)
     },
     initMap() {
-      //我不知道你是怎么定义私有变量的？
+
       let that = this;
       this.tileLayer = new TileLayer({
         // source: new Stamen({
@@ -97,7 +103,7 @@ export default {
         view: new View({
           // center: [0, 0],
           center: fromLonLat([114.601667, 20.714082]), //104.912777, 34.730746
-          zoom: 12,
+          zoom: 4,
         }),
       });
 
@@ -124,7 +130,7 @@ export default {
       const features = [];
 
       // var url = 'http://localhost:9000/ocean/gis/getData/5fbb4dc46af9a9128c2ee084';
-      var url = 'http://localhost:9000/ocean/gis/getData/'+ that.uuid;
+      var url = 'http://localhost:9000/ocean/gis/getSurveyEquipment/'+ that.uuid;
 
       // const infoList = {};
 
@@ -148,41 +154,41 @@ export default {
                 var id = i+1;
                 that.infoList.id = info;
 
-                var recv = flightsData[i].recv.lonlat;
+                // var recv = flightsData[i].recv.lonlat;
                 var send = flightsData[i].send.lonlat;
 
                 var flag = flightsData[i].send.flag;//发送接收位置是否还有其他信息
 
                 var pf = new Point(send);
-                var pt = new Point(recv);
+                // var pt = new Point(recv);
                 // console.log(pf);
                 // console.log(pt);
                 pf.transform('EPSG:4326', 'EPSG:3857');
-                pt.transform('EPSG:4326', 'EPSG:3857');
+                // pt.transform('EPSG:4326', 'EPSG:3857');
                 // var ff = new Feature(pf);
 
                 var featureSendData = {geometry: pf, id: id};
-                var featureRecvData = {geometry: pt, id: id};
+                // var featureRecvData = {geometry: pt, id: id};
                 // var ff, tt;
 
                 if(flag) {
                   $.each(flightsData[i].send.data, function (index, item) {
                     featureSendData.depth = index + ": " + item + "\n";
                   });
-                  $.each(flightsData[i].recv.data, function (index, item) {
-                    featureRecvData.depth = index + ": " + item + "\n";
-                  });
+                  // $.each(flightsData[i].recv.data, function (index, item) {
+                  //   featureRecvData.depth = index + ": " + item + "\n";
+                  // });
                 }
 
 
                 var ff = new Feature(featureSendData);
-                var tt = new Feature(featureRecvData);
+                // var tt = new Feature(featureRecvData);
 
                 // pointSource.addFeature(new Feature(pf));
                 // pointSource.addFeature(ff);
                 // pointSource.addFeature(tt);
                 that.pointSource.addFeature(ff);
-                that.pointSource.addFeature(tt);
+                // that.pointSource.addFeature(tt);
 
               }
             });
@@ -234,7 +240,7 @@ export default {
                 // console.log(flightsData[i])
                 // console.log(flightsData[i].recv)
                 // console.log(flightsData[i].recv.lonlat);
-                var recv = flightsData[i].recv.lonlat;
+                // var recv = flightsData[i].recv.lonlat;
                 var send = flightsData[i].send.lonlat;
                 // console.log(recv)
 
@@ -284,7 +290,7 @@ export default {
         },
       });
 
-      this.map.addLayer(this.flightsLayer);
+      // this.map.addLayer(this.flightsLayer);
       this.map.addLayer(this.pointLayer);
 
       this.map.on('click', function (evt) {
@@ -365,7 +371,7 @@ export default {
       // console.log(feature.id_);
       if (feature) {
         // info.attr('data-original-title', feature.get('name')).tooltip('show');
-        info.attr('data-original-title', feature.get('depth')).tooltip('show');
+        info.attr('data-original-title', feature.get('stationInfo')).tooltip('show');
         var id = feature.get("id");
         // console.log(infoList.id);
         var html = this.get_contaion(that.infoList.id);
@@ -381,28 +387,33 @@ export default {
     /* 展示表格 */
     get_contaion(data){
       var html = "<table>";
-      html += "<tr>";
-      html += "<th>名称</th>";
-      html += "<th>参数</th>";
-      html += "</tr>";
+      var ths = "";
+      var tds = "";
       $.each(data, function (index, item) {
         console.log(index+ " : " + item);
-        html += "<tr>";
-        // $.each(item, function (vlaIndex, valItem) {
-        html += "<td>";
-        html += index;
-        html += "</td>";
-        html += "<td>";
-        html += item;
-        html += "</td>";
-        // });
-        html += "</tr>";
+        ths += "<th>" + index+ "</th>";
+        tds += "<td>" + item+ "</td>";
       });
+      html += "<tr>" + ths + "</tr>";
+      html += "<tr>" + tds + "</tr>";
       html += "</table>";
       return html;
     },
 
 
+    /** load gis data */
+    // loadData(url) {
+    //   fetch(url)
+    //     .then(function (response) {
+    //       console.log(response)
+    //       return response.json();
+    //     })
+    //     .then(function (json) {
+    //       console.log(json)
+    //       // var flightsData = json.body.datas;
+    //       this.respData = json.body.datas
+    //     });
+    // },
   }
 }
 </script>
@@ -459,14 +470,14 @@ export default {
   }
   td
   {
-    border: 1px solid #3281f2;
+    border: 1px solid #009999;
     padding: 6px 6px 6px 12px;
     color: #4f6b72;
     text-align: center;
   }
   th
   {
-    border: 1px solid #3281f2;
+    border: 1px solid #009999;
     padding: 6px 6px 6px 12px;
     color: #4f6b72;
     text-align: center;
