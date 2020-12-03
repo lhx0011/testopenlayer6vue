@@ -28,6 +28,7 @@ import { transform, fromLonLat } from "ol/proj";
 // import "./jquery-3.5.1.min.js";
 // import "./bootstrap.bundle.min.js";
 // import "./polyfill.min.js";
+import "./map.style.css"
 
 export default {
   name: "map",
@@ -417,69 +418,3 @@ export default {
   }
 }
 </script>
-
-<!--<style src="../static/css/bootstrap.min.css"></style>-->
-<style >
-  /*@import "static/css/bootstrap.min.css";*/
-  /*@import "./style/bootstrap.min.css";*/
-  .map {
-    width: 100%;
-    height:400px;
-  }
-  #map {
-    position: relative;
-  }
-  #info {
-    position: absolute;
-    height: 1px;
-    width: 1px;
-    z-index: 100;
-  }
-  .tooltip.in {
-    opacity: 1;
-  }
-  .tooltip.top .tooltip-arrow {
-    border-top-color: red !important;
-  }
-
-  /* 控制tooltip 气泡框样式 */
-  .tooltip-inner {
-    /*border: 2px solid blue;
-    background-color: #yellow;*/
-    max-width: 200px;
-    padding: .25rem .5rem;
-    color: #000 !important;
-    text-align: center;
-    background-color: #fff !important;
-    border-radius: .25rem;
-  }
-
-  /* 控制tooltip三角样式 */
-  .arrow::before {
-    top: 0;
-    border-width: .4rem .4rem 0;
-    border-top-color: #fff !important;
-    border-bottom-color: #fff !important;
-  }
-
-  table
-  {
-    padding: 0;
-    margin: 0;
-    border-collapse: collapse;
-  }
-  td
-  {
-    border: 1px solid #3281f2;
-    padding: 6px 6px 6px 12px;
-    color: #4f6b72;
-    text-align: center;
-  }
-  th
-  {
-    border: 1px solid #3281f2;
-    padding: 6px 6px 6px 12px;
-    color: #4f6b72;
-    text-align: center;
-  }
-</style>
